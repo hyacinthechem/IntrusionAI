@@ -9,8 +9,11 @@ public class IntrusionDetector extends JFrame {
 
     private boolean administrator;
     private String adminPassword;
+    private String filePath = "data/sshd.log";
+    private String odsFilePath = "data/sshd.ods";
 
     Map<String, Feature<Object>> featureMap = new HashMap<>();
+
 
 
     public void UserInterface(){
@@ -43,7 +46,8 @@ public class IntrusionDetector extends JFrame {
 
     public void detections(){
         if(administrator){
-
+            NetworkDataLoader ndl = new NetworkDataLoader(filePath, odsFilePath);
+            ndl.loaders();
         }else{
             UI.println("Please Sign in as Administrator");
         }
