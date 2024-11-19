@@ -15,8 +15,12 @@ import java.io.FileInputStream;
 
 public class NetworkDataLoader {
     private final String filename;
+    private String extra;
     private final String filePivotTable;
     public boolean succesfullyLoaded = false;
+    private String featureType;
+    private String[] featureNames = {"DATE", "TIME", "ACCEPTED-FAILED", "USER-TYPE","USERNAME","IP-ADDRESS","PORT"};
+    private List<String> featureList = Arrays.asList(featureNames);
 
 
     public NetworkDataLoader(String filename, String filePivotTable){
@@ -38,6 +42,7 @@ public class NetworkDataLoader {
         for(int row=0; row<sheet.getRowCount(); row++ ){ //loop through each of the rows
             for(int col = 0; col<sheet.getColumnCount(); col++){
                 Object cellValue = sheet.getCellAt(col,row).getValue();
+
                 UI.println(cellValue + "\t");
             }
             UI.println();
@@ -49,6 +54,67 @@ public class NetworkDataLoader {
             UI.println("File Failure" + e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void setFeatureType(String featureType){
+        if(featureList.contains(featureType)){
+            this.featureType = featureType;
+        }else{
+            UI.println("Feature type not recognized: " + featureType);
+        }
+    }
+
+    public void loadFeatureType(String featureType) {
+        int count = 0;
+        setFeatureType(featureType); // sets the featureType within the same class
+        try {
+            File file = new File(filePivotTable);
+            UI.println("Loading features from " + filePivotTable);
+            SpreadSheet document = SpreadSheet.createFromFile(file);
+            UI.println("Loaded Succesfully");
+            Sheet sheet = document.getSheet(0); // individual sheet from ods file
+            UI.println("Loading Specific Sheet");
+
+            for (int row = 0; row < sheet.getRowCount(); row++) {
+                Object rowValue = sheet.getCellAt(0, row).getValue(); // Get row name
+                UI.println("Loaded Sheet");
+                UI.println(rowValue + "\t");
+                if (rowValue != null && rowValue instanceof String) { // Ensure it's a string
+                    String rowName = (String) rowValue;
+                    if (rowName.equals(featureType)) {
+                        for (int col = 0; col < sheet.getColumnCount(); col++) {
+                            Object cellValue = sheet.getCellAt(col, row).getValue();
+                            UI.println(cellValue + "\t");
+                            if (cellValue != null && cellValue instanceof String) {
+                                String cell = (String) cellValue;
+                                extra = "yes";
+                                if ("Failed".equals(cell)) {
+                                    count++;
+                                    if (numberOfFailures(count)) {
+                                        UI.println("Exceeded maximum failures!");
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        break; // Exit the loop after processing the row
+                    }
+                }
+            }
+            UI.println("Loaded " + count + " features" + (extra != null ? " - " + extra : ""));
+        } catch (IOException e) {
+            UI.println("File Failure: " + e.getMessage());
+        }
+    }
+
+
+
+    public boolean numberOfFailures(int failures){
+        if(failures>IntrusionDetector.MAXIMUM_FAILURES){
+            return true;
+        }else{
+            return false;
         }
     }
 
