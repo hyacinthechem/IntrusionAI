@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 package src;
 
+=======
+>>>>>>> 21a2dde32d698303c0263578cb2b402237219f29
 import ecs100.*;
 import java.util.*;
 
