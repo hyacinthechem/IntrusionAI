@@ -1,17 +1,15 @@
-
 package src;
-
 
 import java.util.*;
 import ecs100.*;
 import java.io.*;
 
 /*
-*** Import .jar ODF Toolkit library to utilise odf file reading formats
+ *** Import .jar Apache POI library to utilize Excel file reading formats
  */
 
-import org.jopendocument.dom.spreadsheet.Sheet;
-import org.jopendocument.dom.spreadsheet.SpreadSheet;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +26,7 @@ public class NetworkDataLoader {
 
 
     public NetworkDataLoader(String filename, String filePivotTable){
+<<<<<<< HEAD
         this.filename = filename;
         this.filePivotTable = filePivotTable;
     }
@@ -59,6 +58,9 @@ public class NetworkDataLoader {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+=======
+
+>>>>>>> 441c3d4 (Maven Libraries)
     }
 
     public void setFeatureType(String featureType){
@@ -70,6 +72,7 @@ public class NetworkDataLoader {
     }
 
     public void loadFeatureType(String featureType) {
+<<<<<<< HEAD
         int count = 0;
         setFeatureType(featureType); // sets the featureType within the same class
         try {
@@ -110,6 +113,9 @@ public class NetworkDataLoader {
         } catch (IOException e) {
             UI.println("File Failure: " + e.getMessage());
         }
+=======
+
+>>>>>>> 441c3d4 (Maven Libraries)
     }
 
 
