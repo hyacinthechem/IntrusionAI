@@ -12,8 +12,7 @@ public class IntrusionDetector extends JFrame {
 
     private boolean administrator;
     private String adminPassword;
-    private String filePath = "data/sshd.log";
-    private String odsFilePath = "data/sshd.ods";
+    private String filePath = "data/sshd.xlsx";
     public static final int MAXIMUM_FAILURES = 20;
 
     Map<String, Feature<Object>> featureMap = new HashMap<>();
@@ -53,9 +52,12 @@ public class IntrusionDetector extends JFrame {
 
     public void detections(){
         if(administrator){
-            NetworkDataLoader ndl = new NetworkDataLoader(filePath, odsFilePath);
-            //ndl.loaders();
+            NetworkDataLoader ndl = new NetworkDataLoader(filePath);
+            ndl.loaders();
             ndl.loadFeatureType("ACCEPTED-FAILED");
+            if(ndl.getCount()>MAXIMUM_FAILURES){
+                UI.println("System shut down");
+            }
 
         }else{
             UI.println("Please Sign in as Administrator");
