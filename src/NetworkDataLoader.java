@@ -26,7 +26,7 @@ public class NetworkDataLoader {
     private String[] featureNames = {"DATE", "TIME", "ACCEPTED-FAILED", "USER-TYPE","USERNAME","IP-ADDRESS","PORT"};
     private List<String> featureList = Arrays.asList(featureNames);
 
-    private Map<Row, List<Cell>> sshdMap = new HashMap<>();
+    private Map<String, List<Cell>> sshdMap = new HashMap<>();
 
 
     public NetworkDataLoader(String filename){
@@ -36,15 +36,23 @@ public class NetworkDataLoader {
     public void loaders() {
       try(FileInputStream fis = new FileInputStream(new File(filename));
         Workbook workbook = new XSSFWorkbook(fis)){
+          Sheet sheet = workbook.getSheetAt(0);
+          int maxRow = sheet.getLastRowNum(); //returns maximum amount of rows
+          int maxCol = sheet.getRow(0).getLastCellNum(); //returns maximum amount of cols
 
-
-          Sheet sheet = workbook.getSheetAt(0); //returns pivot table of sshd
-          for(Row row : sheet){
+          /* iterate through the columns first in regular for loop*/
+          for(int i = 0; i < maxCol; i++){
               List<Cell> cellList = new ArrayList<>();
-              for(Cell cell : row) {
-                  cellList.add(cell);
+              String columnName = sheet.getRow(0).getCell(i).getStringCellValue();
+              for(int j = 0; j < maxRow; j++){
+                  Row row = sheet.getRow(j); //get the current row we are on from column
+                  Cell currentCell = row.getCell(i); //retrieve the cell we are on from i
+                  if(currentCell!=null){
+                      cellList.add(currentCell);
+                  }
               }
-              sshdMap.put(row, cellList);
+              sshdMap.put(columnName,cellList);
+
           }
 
     }catch(IOException e){
@@ -58,18 +66,6 @@ public class NetworkDataLoader {
         }else{
             UI.println("Feature type not recognized: " + featureType);
         }
-    }
-
-    public void loadFeatureType(String feature) {
-        List<Cell> cellList = sshdMap.get(feature);
-        for(Cell cell : cellList){
-            if(cell.getStringCellValue().equals("Failed")){
-                count++;
-            }
-
-        }
-
-
     }
 
 
@@ -89,6 +85,10 @@ public class NetworkDataLoader {
 
     public int getCount(){
         return count;
+    }
+
+    public Map<String, List<Cell>> getLogFileMap(){
+        return Collections.unmodifiableMap(sshdMap);
     }
 
 

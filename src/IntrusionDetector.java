@@ -5,6 +5,9 @@ import java.lang.annotation.ElementType;
 import java.util.*;
 import java.io.*;
 import ecs100.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+
 import javax.swing.*;
 
 
@@ -14,8 +17,10 @@ public class IntrusionDetector extends JFrame {
     private String adminPassword;
     private String filePath = "data/sshd.xlsx";
     public static final int MAXIMUM_FAILURES = 20;
+    private NetworkDataLoader ndl = new NetworkDataLoader(filePath);
 
-    Map<String, Feature<Object>> featureMap = new HashMap<>();
+    private  Map<String,List<Cell>> networkMap;
+    private Map<String, Feature<Object>> featureMap = new HashMap<>();
 
 
 
@@ -23,6 +28,7 @@ public class IntrusionDetector extends JFrame {
         UI.addButton("Login" , this::doLogin);
         UI.addButton("Latest Detections ", this::detections);
         UI.addButton("BlackList Port", this::blackListPort);
+        UI.addButton("Print Log File", this::printMap);
 
     }
 
@@ -52,9 +58,8 @@ public class IntrusionDetector extends JFrame {
 
     public void detections(){
         if(administrator){
-            NetworkDataLoader ndl = new NetworkDataLoader(filePath);
             ndl.loaders();
-            ndl.loadFeatureType("ACCEPTED-FAILED");
+            acceptedFailed();
             if(ndl.getCount()>MAXIMUM_FAILURES){
                 UI.println("System shut down");
             }
@@ -62,6 +67,40 @@ public class IntrusionDetector extends JFrame {
         }else{
             UI.println("Please Sign in as Administrator");
         }
+    }
+
+    public void acceptedFailed(){
+        int count = 0;
+        List<Cell> cells = new ArrayList<>();
+        networkMap = ndl.getLogFileMap();
+        for(String featureName : networkMap.keySet()){
+            if(featureName.equals("ACCEPTED-FAILED")){
+              cells = networkMap.get(featureName);
+            }
+        }
+
+        for(Cell cell : cells){
+            if(cell.getStringCellValue().equals("Failed")){
+                count++;
+            }
+        }
+
+        if(count>MAXIMUM_FAILURES){
+            UI.println("Count: " + count + "  System shut down");
+        }
+
+    }
+
+    public void printMap(){
+        ndl.loaders();
+        networkMap = ndl.getLogFileMap();
+        for(Map.Entry<String,List<Cell>> entry : networkMap.entrySet()){
+            String row = entry.getKey();
+            List<Cell> cells = entry.getValue();
+            UI.println(row);
+            UI.println(cells);
+        }
+
     }
 
     public void blackListPort(){
