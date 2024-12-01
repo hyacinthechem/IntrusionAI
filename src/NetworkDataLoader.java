@@ -16,15 +16,12 @@ import java.io.FileInputStream;
 
 
 
-
 public class NetworkDataLoader {
     private final String filename;
-    private String extra;
     private int count;
     public boolean succesfullyLoaded = false;
-    private String featureType;
     private String[] featureNames = {"DATE", "TIME", "ACCEPTED-FAILED", "USER-TYPE","USERNAME","IP-ADDRESS","PORT"};
-    private List<String> featureList = Arrays.asList(featureNames);
+    private List<Feature> featureList;
 
     private Map<String, List<Cell>> sshdMap = new HashMap<>();
 
@@ -44,6 +41,7 @@ public class NetworkDataLoader {
           for(int i = 0; i < maxCol; i++){
               List<Cell> cellList = new ArrayList<>();
               String columnName = sheet.getRow(0).getCell(i).getStringCellValue();
+              featureBuild(columnName);
               for(int j = 0; j < maxRow; j++){
                   Row row = sheet.getRow(j); //get the current row we are on from column
                   Cell currentCell = row.getCell(i); //retrieve the cell we are on from i
@@ -60,22 +58,29 @@ public class NetworkDataLoader {
     }
 }
 
-    public void setFeatureType(String featureType){
-        if(featureList.contains(featureType)){
-            this.featureType = featureType;
-        }else{
-            UI.println("Feature type not recognized: " + featureType);
+
+
+    public void featureBuild(String featureType){
+        switch(featureType){
+            case "DATE":
+                Date date = new Date(featureType);
+                featureList.add(new Feature(date));
+            case "IP-ADDRESS":
+                IPAddress ipAddress = new IPAddress(featureType);
+                featureList.add(new Feature(ipAddress));
+
+            case "USER-TYPE":
+
+
+            case "USERNAME":
+
+            case "ACCEPTED-FAILED":
+
+            case "PORT":
+
+            case "TIME":
         }
-    }
 
-
-
-    public boolean numberOfFailures(int failures){
-        if(failures>IntrusionDetector.MAXIMUM_FAILURES){
-            return true;
-        }else{
-            return false;
-        }
     }
 
 
