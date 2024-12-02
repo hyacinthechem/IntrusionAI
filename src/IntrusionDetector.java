@@ -14,6 +14,7 @@ import javax.swing.*;
 public class IntrusionDetector extends JFrame {
 
     private boolean administrator;
+    private boolean portRisk = false;
     private String adminPassword;
     private String filePath = "data/sshd.xlsx";
     private NetworkData main;
@@ -100,6 +101,11 @@ public class IntrusionDetector extends JFrame {
     }
 
     public void blackListPort(){
+        List<Double> portNumbers = UI.askNumbers("Ports: ");
+        if(!portNumbers.isEmpty()){
+            portRisk = true;
+        }
+
 
     }
 
@@ -111,8 +117,9 @@ public class IntrusionDetector extends JFrame {
     }
 
     public void constructFeatureMap(){
-
-
+        for(Feature<Object> feature : allFeatures){
+            featureMap.put(feature.toString(), feature);
+        }
     }
 
 

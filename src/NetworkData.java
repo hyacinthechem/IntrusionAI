@@ -58,46 +58,67 @@ public class NetworkData {
 
 
 /* Feature Build method enters the sshdMap and constructs objects based on its featureType for all features. */
-    public List<Feature> featureBuild() {
-         featureList = new ArrayList<>(); // instantiate the featureList declaration
+public List<Feature> featureBuild() {
+    featureList = new ArrayList<>(); // Instantiate the featureList
 
-         for(String featureName : sshdMap.keySet()){ //loop through the sshdMap keyset which contains strings of featureName[]
-             for(Cell cell : sshdMap.get(featureName)){ // loop through the individual cells for the associated column. cells in columns is returned as list
-                switch(featureName){
-                    case "ACCEPTED-FAILED":
-                        if(cell.getStringCellValue().equals("Accepted")){
-                            AcceptedFailed af = new AcceptedFailed(true);
-                            featureList.add(new Feature(af));
-                        }
-                    case "DATE":
+    for (String featureName : sshdMap.keySet()) { // Loop through the sshdMap keyset
+        for (Cell cell : sshdMap.get(featureName)) { // Loop through cells in each column
+            switch (featureName) {
+                case "ACCEPTED-FAILED":
+                    if (cell.getCellType() == CellType.STRING && "Accepted".equals(cell.getStringCellValue())) {
+                        AcceptedFailed af = new AcceptedFailed(true);
+                        featureList.add(new Feature(af));
+                    }
+                    break;
+
+                case "DATE":
+                    if (cell.getCellType() == CellType.STRING) {
                         Date d = new Date(cell.getStringCellValue());
                         featureList.add(new Feature(d));
-                    case "IP-ADDRESS":
+                    }
+                    break;
+
+                case "IP-ADDRESS":
+                    if (cell.getCellType() == CellType.STRING) { //check celltype to avoid exception thrown
                         IPAddress ip = new IPAddress(cell.getStringCellValue());
                         featureList.add(new Feature(ip));
-                    case "PORT":
+                    }
+                    break;
+
+                case "PORT":
+                    if (cell.getCellType() == CellType.NUMERIC) { //check celltype to avoid exception thrown
                         Port p = new Port(cell.getNumericCellValue());
                         featureList.add(new Feature(p));
-                    case "TIME":
+                    }
+                    break;
+
+                case "TIME":
+                    if (cell.getCellType() == CellType.STRING) {
                         Time t = new Time(cell.getStringCellValue());
                         featureList.add(new Feature(t));
-                    case "USERNAME":
+                    }
+                    break;
+
+                case "USERNAME":
+                    if (cell.getCellType() == CellType.STRING) {
                         Username u = new Username(cell.getStringCellValue());
                         featureList.add(new Feature(u));
-                    case "USER-TYPE":
-                        if(cell.getStringCellValue().equals("valid_user")){
-                            UserType ut = new UserType(true);
-                            featureList.add(new Feature(ut));
-                        }else{
-                            UserType ut = new UserType(false);
-                            featureList.add(new Feature(ut));
-                        }
+                    }
+                    break;
 
-                }
-             }
-         }
-         return featureList;
+                case "USER-TYPE":
+                    if (cell.getCellType() == CellType.STRING) {
+                        UserType ut = new UserType("valid_user".equals(cell.getStringCellValue()));
+                        featureList.add(new Feature(ut));
+                    }
+                    break;
+            }
+        }
     }
+
+    return featureList;
+}
+
 
     public String getFileName(){
         return filename;

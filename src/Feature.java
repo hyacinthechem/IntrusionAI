@@ -10,7 +10,7 @@ import java.util.*;
     This class takes the features/variables of the network log file and creates an object for the feature
  */
 
-public class Feature<E> implements Iterable<E> {
+public class Feature<E> {
 
     private E featureType;
     private Set<E> features;
@@ -26,11 +26,6 @@ public class Feature<E> implements Iterable<E> {
     @Override
     public String toString(){
         return featureType.toString();
-    }
-
-    @Override
-    public Iterator<E> iterator(){
-        return this.features.iterator();
     }
 
 }
