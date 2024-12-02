@@ -16,10 +16,11 @@ public class IntrusionDetector extends JFrame {
     private boolean administrator;
     private String adminPassword;
     private String filePath = "data/sshd.xlsx";
+    private NetworkData main;
     public static final int MAXIMUM_FAILURES = 20;
-    private NetworkDataLoader ndl = new NetworkDataLoader(filePath);
 
     private  Map<String,List<Cell>> networkMap;
+    private  List<Feature> allFeatures;
     private Map<String, Feature<Object>> featureMap = new HashMap<>();
 
 
@@ -51,16 +52,14 @@ public class IntrusionDetector extends JFrame {
             administrator = false;
             UI.println("Incorrect Password");
         }
-
     }
 
 
 
     public void detections(){
         if(administrator){
-            ndl.loaders();
             acceptedFailed();
-            if(ndl.getCount()>MAXIMUM_FAILURES){
+            if(main.getCount()>MAXIMUM_FAILURES){
                 UI.println("System shut down");
             }
 
@@ -72,7 +71,6 @@ public class IntrusionDetector extends JFrame {
     public void acceptedFailed(){
         int count = 0;
         List<Cell> cells = new ArrayList<>();
-        networkMap = ndl.getLogFileMap();
         for(String featureName : networkMap.keySet()){
             if(featureName.equals("ACCEPTED-FAILED")){
               cells = networkMap.get(featureName);
@@ -92,8 +90,6 @@ public class IntrusionDetector extends JFrame {
     }
 
     public void printMap(){
-        ndl.loaders();
-        networkMap = ndl.getLogFileMap();
         for(Map.Entry<String,List<Cell>> entry : networkMap.entrySet()){
             String row = entry.getKey();
             List<Cell> cells = entry.getValue();
@@ -107,10 +103,24 @@ public class IntrusionDetector extends JFrame {
 
     }
 
+    public void NetworkDataLoader(){
+        main = new NetworkData(filePath); //initialise the NetworkData object
+        main.loaders(); //load the xlsx file data and put into networkMap
+        allFeatures = main.featureBuild(); //extract featureObjects from built networkMap
+        networkMap = main.getLogFileMap(); //Get copy of networkMap for IntrusionDetector class
+    }
+
+    public void constructFeatureMap(){
+
+
+    }
+
 
     public static void main(String[] args){
         IntrusionDetector id = new IntrusionDetector();
         id.loadPassword();
+        id.NetworkDataLoader();
+        id.constructFeatureMap();
         id.UserInterface();
     }
 }
