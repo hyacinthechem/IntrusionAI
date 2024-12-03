@@ -15,6 +15,7 @@ public class IntrusionDetector extends JFrame {
 
     private boolean administrator;
     private boolean portRisk = false;
+    private double infectedPorts;
     private String adminPassword;
     private String filePath = "data/sshd.xlsx";
     private NetworkData main;
@@ -22,6 +23,7 @@ public class IntrusionDetector extends JFrame {
 
     private  Map<String,List<Cell>> networkMap;
     private  List<Feature> allFeatures;
+    private  List<Double> portNumbers;
     private Map<String, Feature<Object>> featureMap = new HashMap<>();
 
 
@@ -60,13 +62,27 @@ public class IntrusionDetector extends JFrame {
     public void detections(){
         if(administrator){
             acceptedFailed();
-            if(main.getCount()>MAXIMUM_FAILURES){
-                UI.println("System shut down");
-            }
+            portScanner();
 
         }else{
             UI.println("Please Sign in as Administrator");
         }
+    }
+
+    public void portScanner(){
+        for(String feature : featureMap.keySet()){
+            if(feature.equals("PORT")){
+                Feature<Object> featureObj = featureMap.get(feature);
+                Object p = featureObj.getFeatureType();
+                if(p instanceof Port){
+                    Port port = (Port)p;
+                    if(portNumbers.contains(port.getPortNumber())){
+                        infectedPorts++;
+                    }
+                }
+            }
+        }
+        UI.println("Detected: " + infectedPorts + " Infected Ports");
     }
 
     public void acceptedFailed(){
@@ -100,13 +116,13 @@ public class IntrusionDetector extends JFrame {
 
     }
 
+
+
     public void blackListPort(){
-        List<Double> portNumbers = UI.askNumbers("Ports: ");
+        portNumbers = UI.askNumbers("Ports: ");
         if(!portNumbers.isEmpty()){
             portRisk = true;
         }
-
-
     }
 
     public void NetworkDataLoader(){
