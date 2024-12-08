@@ -5,6 +5,7 @@ import java.lang.annotation.ElementType;
 import java.util.*;
 import java.io.*;
 import ecs100.*;
+import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
@@ -33,6 +34,7 @@ public class IntrusionDetector extends JFrame {
         UI.addButton("Latest Detections ", this::detections);
         UI.addButton("BlackList Port", this::blackListPort);
         UI.addButton("Print Log File", this::printMap);
+        UI.addButton("Debug", this::constructFeatureMap);
 
     }
 
@@ -131,6 +133,12 @@ public class IntrusionDetector extends JFrame {
         allFeatures = main.featureBuild(); //extract featureObjects from built networkMap
         networkMap = main.getLogFileMap(); //Get copy of networkMap for IntrusionDetector class
     }
+
+    /* Feature Map must have rowHeaders "PORT", "DATE" "TIME" ETC as the Key,
+    and then the list of the features being the columns as the Pair Value*
+
+    So then you have size 14 and then the list of all the columns for that feature
+     */
 
     public void constructFeatureMap(){
         for(Feature<Object> feature : allFeatures){

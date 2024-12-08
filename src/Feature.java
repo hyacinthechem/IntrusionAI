@@ -4,6 +4,8 @@ package src;
 
 
 import ecs100.*;
+import org.apache.poi.ss.usermodel.Sheet;
+
 import java.util.*;
 
 /*
@@ -13,7 +15,7 @@ import java.util.*;
 public class Feature<E> {
 
     private E featureType;
-    private Set<E> features;
+    private List<E> features;
 
     public Feature(E featureType){
         this.featureType = featureType;
@@ -21,6 +23,18 @@ public class Feature<E> {
 
     public E getFeatureType(){
         return featureType;
+    }
+
+    public void addFeature(E featureType){
+        features.add(featureType);
+    }
+
+    public void removeFeature(E featureType){
+        features.remove(featureType);
+    }
+
+    public E getFeatureIndex(int index){
+        return features.get(index);
     }
 
     @Override
