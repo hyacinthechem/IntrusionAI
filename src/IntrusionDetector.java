@@ -23,9 +23,9 @@ public class IntrusionDetector extends JFrame {
     public static final int MAXIMUM_FAILURES = 20;
 
     private  Map<String,List<Cell>> networkMap;
-    private  List<Feature> allFeatures;
+    private  List<Feature<?>> allFeatures;
     private  List<Double> portNumbers;
-    private Map<String, Feature<Object>> featureMap = new HashMap<>();
+    private Map<String, Feature<?>> featureMap = new HashMap<>();
 
 
 
@@ -74,7 +74,7 @@ public class IntrusionDetector extends JFrame {
     public void portScanner(){
         for(String feature : featureMap.keySet()){
             if(feature.equals("PORT")){
-                Feature<Object> featureObj = featureMap.get(feature);
+                Feature<?> featureObj = featureMap.get(feature);
                 Object p = featureObj.getFeatureType();
                 if(p instanceof Port){
                     Port port = (Port)p;
@@ -141,9 +141,11 @@ public class IntrusionDetector extends JFrame {
      */
 
     public void constructFeatureMap(){
-        for(Feature<Object> feature : allFeatures){
+
+        for(Feature<?> feature : allFeatures){
             featureMap.put(feature.toString(), feature);
         }
+
     }
 
 

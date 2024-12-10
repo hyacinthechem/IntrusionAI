@@ -14,6 +14,7 @@ import java.util.*;
 
 public class Feature<E> {
 
+    private String columnHeader;
     private E featureType;
     private List<E> features;
 
@@ -21,12 +22,20 @@ public class Feature<E> {
         this.featureType = featureType;
     }
 
+    public Feature(){
+        this.features = new ArrayList<>();
+    }
+
     public E getFeatureType(){
         return featureType;
     }
 
-    public void addFeature(E featureType){
+    public void addFeature( E featureType){
         features.add(featureType);
+    }
+
+    public void setColumnHeader(String header){
+        this.columnHeader = header;
     }
 
     public void removeFeature(E featureType){
@@ -37,9 +46,14 @@ public class Feature<E> {
         return features.get(index);
     }
 
+    public List<E> getFeaturesList(){
+        return features;
+    }
+
     @Override
     public String toString(){
-        return featureType.toString();
+        return columnHeader;
     }
+
 
 }

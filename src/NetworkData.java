@@ -20,9 +20,19 @@ public class NetworkData {
     private int count;
     public boolean succesfullyLoaded = false;
     private String[] featureNames = {"DATE", "TIME", "ACCEPTED-FAILED", "USER-TYPE","USERNAME","IP-ADDRESS","PORT"};
-    private List<Feature> featureList;
+    private List<Feature<?>> featureList;
 
     private Map<String, List<Cell>> sshdMap = new HashMap<>();
+
+    //Feature Instantiations
+
+    private Feature<AcceptedFailed> af;
+    private Feature<Date> date;
+    private Feature<IPAddress> ipAddress;
+    private Feature<UserType> userType;
+    private Feature<Username> username;
+    private Feature<Port> port;
+    private Feature<Time> time;
 
 
     public NetworkData(String filename){
@@ -58,58 +68,73 @@ public class NetworkData {
 
 
 /* Feature Build method enters the sshdMap and constructs objects based on its featureType for all features. */
-public List<Feature> featureBuild() {
+public List<Feature<?>> featureBuild() {
     featureList = new ArrayList<>(); // Instantiate the featureList
+    af = new Feature<AcceptedFailed>();
+    date = new Feature<Date>();
+    ipAddress = new Feature<IPAddress>();
+    port = new Feature<Port>();
+    time = new Feature<Time>();
+    username = new Feature<Username>();
+    userType = new Feature<UserType>();
+
 
     for (String featureName : sshdMap.keySet()) { // Loop through the sshdMap keyset
         for (Cell cell : sshdMap.get(featureName)) { // Loop through cells in each column
             switch (featureName) {
                 case "ACCEPTED-FAILED":
                     if (cell.getCellType() == CellType.STRING && "Accepted".equals(cell.getStringCellValue())) {
-                        AcceptedFailed af = new AcceptedFailed(true);
-                        featureList.add(new Feature(af));
+                        AcceptedFailed afd = new AcceptedFailed(true);
+                        af.addFeature(afd);
+                        featureList.add(af);
                     }
                     break;
 
                 case "DATE":
                     if (cell.getCellType() == CellType.STRING) {
                         Date d = new Date(cell.getStringCellValue());
-                        featureList.add(new Feature(d));
+                        date.setColumnHeader(d.getRowHeader());
+                        featureList.add(date);
                     }
                     break;
 
                 case "IP-ADDRESS":
                     if (cell.getCellType() == CellType.STRING) { //check celltype to avoid exception thrown
                         IPAddress ip = new IPAddress(cell.getStringCellValue());
-                        featureList.add(new Feature(ip));
+                        ipAddress.addFeature(ip);
+                        featureList.add(ipAddress);
                     }
                     break;
 
                 case "PORT":
                     if (cell.getCellType() == CellType.NUMERIC) { //check celltype to avoid exception thrown
                         Port p = new Port(cell.getNumericCellValue());
-                        featureList.add(new Feature(p));
+                        port.addFeature(p);
+                        featureList.add(port);
                     }
                     break;
 
                 case "TIME":
                     if (cell.getCellType() == CellType.STRING) {
                         Time t = new Time(cell.getStringCellValue());
-                        featureList.add(new Feature(t));
+                        time.addFeature(t);
+                        featureList.add(time);
                     }
                     break;
 
                 case "USERNAME":
                     if (cell.getCellType() == CellType.STRING) {
                         Username u = new Username(cell.getStringCellValue());
-                        featureList.add(new Feature(u));
+                        username.addFeature(u);
+                        featureList.add(username);
                     }
                     break;
 
                 case "USER-TYPE":
                     if (cell.getCellType() == CellType.STRING) {
                         UserType ut = new UserType("valid_user".equals(cell.getStringCellValue()));
-                        featureList.add(new Feature(ut));
+                        userType.addFeature(ut);
+                        featureList.add(userType);
                     }
                     break;
             }
