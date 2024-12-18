@@ -83,8 +83,9 @@ public List<Feature<?>> featureBuild() {
         for (Cell cell : sshdMap.get(featureName)) { // Loop through cells in each column
             switch (featureName) {
                 case "ACCEPTED-FAILED":
-                    if (cell.getCellType() == CellType.STRING && "Accepted".equals(cell.getStringCellValue())) {
+                    if (cell.getCellType() == CellType.STRING) {
                         AcceptedFailed afd = new AcceptedFailed(true);
+                        af.setColumnHeader(afd.getRowHeader());
                         af.addFeature(afd);
                         featureList.add(af);
                     }
@@ -93,6 +94,7 @@ public List<Feature<?>> featureBuild() {
                 case "DATE":
                     if (cell.getCellType() == CellType.STRING) {
                         Date d = new Date(cell.getStringCellValue());
+                        date.addFeature(d);
                         date.setColumnHeader(d.getRowHeader());
                         featureList.add(date);
                     }
@@ -102,6 +104,7 @@ public List<Feature<?>> featureBuild() {
                     if (cell.getCellType() == CellType.STRING) { //check celltype to avoid exception thrown
                         IPAddress ip = new IPAddress(cell.getStringCellValue());
                         ipAddress.addFeature(ip);
+                        ipAddress.setColumnHeader(ip.getRowHeader());
                         featureList.add(ipAddress);
                     }
                     break;
@@ -109,6 +112,7 @@ public List<Feature<?>> featureBuild() {
                 case "PORT":
                     if (cell.getCellType() == CellType.NUMERIC) { //check celltype to avoid exception thrown
                         Port p = new Port(cell.getNumericCellValue());
+                        port.setColumnHeader(p.getRowHeader());
                         port.addFeature(p);
                         featureList.add(port);
                     }
@@ -117,6 +121,7 @@ public List<Feature<?>> featureBuild() {
                 case "TIME":
                     if (cell.getCellType() == CellType.STRING) {
                         Time t = new Time(cell.getStringCellValue());
+                        time.setColumnHeader(t.getRowHeader());
                         time.addFeature(t);
                         featureList.add(time);
                     }
@@ -125,6 +130,7 @@ public List<Feature<?>> featureBuild() {
                 case "USERNAME":
                     if (cell.getCellType() == CellType.STRING) {
                         Username u = new Username(cell.getStringCellValue());
+                        username.setColumnHeader(u.getRowHeader());
                         username.addFeature(u);
                         featureList.add(username);
                     }
@@ -133,6 +139,7 @@ public List<Feature<?>> featureBuild() {
                 case "USER-TYPE":
                     if (cell.getCellType() == CellType.STRING) {
                         UserType ut = new UserType("valid_user".equals(cell.getStringCellValue()));
+                        userType.setColumnHeader(ut.getRowHeader());
                         userType.addFeature(ut);
                         featureList.add(userType);
                     }

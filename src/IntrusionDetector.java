@@ -75,11 +75,13 @@ public class IntrusionDetector extends JFrame {
         for(String feature : featureMap.keySet()){
             if(feature.equals("PORT")){
                 Feature<?> featureObj = featureMap.get(feature);
-                Object p = featureObj.getFeatureType();
-                if(p instanceof Port){
-                    Port port = (Port)p;
-                    if(portNumbers.contains(port.getPortNumber())){
-                        infectedPorts++;
+                List<?> featureList = featureObj.getFeaturesList();
+                for(Object o : featureList){
+                    if(o instanceof Port){
+                        Port port = (Port)o;
+                        if(portNumbers.contains(port.getPortNumber())){
+                            infectedPorts++;
+                        }
                     }
                 }
             }
