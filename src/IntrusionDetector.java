@@ -34,8 +34,12 @@ public class IntrusionDetector extends JFrame {
         UI.addButton("Latest Detections ", this::detections);
         UI.addButton("BlackList Port", this::blackListPort);
         UI.addButton("Print Log File", this::printMap);
-        UI.addButton("Debug", this::constructFeatureMap);
+        UI.addButton("Debug", this::debugger);
 
+    }
+
+    private void debugger(){
+        main.loadAllRequests();
     }
 
     private void loadPassword(){
@@ -133,6 +137,7 @@ public class IntrusionDetector extends JFrame {
         main = new NetworkData(filePath); //initialise the NetworkData object
         main.loaders(); //load the xlsx file data and put into networkMap
         allFeatures = main.featureBuild(); //extract featureObjects from built networkMap
+        main.loadAllRequests();
         networkMap = main.getLogFileMap(); //Get copy of networkMap for IntrusionDetector class
     }
 
@@ -156,6 +161,6 @@ public class IntrusionDetector extends JFrame {
         id.loadPassword();
         id.NetworkDataLoader();
         id.constructFeatureMap();
-        id.UserInterface();
+         id.UserInterface();
     }
 }
