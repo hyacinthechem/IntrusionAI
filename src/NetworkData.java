@@ -118,7 +118,7 @@ public void loadAllRequests(){
                     }
                 }
 
-                if(colonCount>2){
+                if(colonCount==2){
                      time = new Time(cellValue);
                 }
                 if(dotCount>2){
@@ -127,7 +127,7 @@ public void loadAllRequests(){
 
                 List<String> ignoreColumn = ignoreColumnHeader();
 
-                if(!(cellValue.startsWith("ssh2")) && !ignoreColumn.contains(cellValue)){
+                if(!(cellValue.startsWith("ssh2")) && !ignoreColumn.contains(cellValue) && !(dotCount>2)){  /*  */
                     username = new Username(cellValue);
                 }
 
