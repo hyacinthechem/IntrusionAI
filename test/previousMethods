@@ -62,3 +62,14 @@ public void loadAllRequests(){
        String cellString = cell.getStringCellValue();
    }
 }
+
+
+   public List<String> ignoreColumnHeader(){
+         List<String> ignoreColumnHeader = new ArrayList<>();
+         ignoreColumnHeader.add("app-1");
+         ignoreColumnHeader.add("password");
+         ignoreColumnHeader.add("for");
+         ignoreColumnHeader.add("from");
+         ignoreColumnHeader.add("port");
+         return ignoreColumnHeader;
+    } //got rid of this method to make simpler by putting it into a Set for private variables ( in fields )

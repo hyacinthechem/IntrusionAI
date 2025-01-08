@@ -10,6 +10,7 @@ import java.io.*;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.xmlbeans.XmlAnySimpleType;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,16 +26,22 @@ public class NetworkData {
 
     private Map<String, List<Cell>> sshdMap = new HashMap<>();
     private Map<Username, List<Request>> requestMap = new HashMap<>();
+    private final Set<String> ignoredColumns = Set.of("app-1","password","for","from","port");
+
 
     //Feature Instantiations
 
-    private Feature<AcceptedFailed> af;
-    private Feature<Date> date;
-    private Feature<IPAddress> ipAddress;
-    private Feature<UserType> userType;
-    private Feature<Username> username;
-    private Feature<Port> port;
-    private Feature<Time> time;
+
+
+    private Feature<AcceptedFailed> featureAf;
+    private Feature<Date> featureDate;
+    private Feature<IPAddress> featureipAddress;
+    private Feature<UserType> featureUserType;
+    private Feature<Username> featureUsername;
+    private Feature<Port> featurePort;
+    private Feature<Time> featureTime;
+
+
 
 
     public NetworkData(String filename){
@@ -72,6 +79,58 @@ public class NetworkData {
 * requests from each user as a value pair. therefore Map<Username, List<Request>> */
 
 public void loadAllRequests(){
+
+try(FileInputStream fis = new FileInputStream(new File(filename))){
+       Workbook workbook = new XSSFWorkbook(fis);
+       Sheet sheet = workbook.getSheetAt(0);
+       for(Row row : sheet){
+           Request request = parseRow(row); //each row is a request so separate with a method that returns request
+           if(request!=null){
+               requestMap.computeIfAbsent(request.getUsername(), k->new ArrayList<>()).add(request);
+           }
+       }
+
+}catch(IOException e){
+    e.printStackTrace();
+   }
+}
+
+private Request parseRow(Row row){
+  try{
+      Date date = null;
+      AcceptedFailed accessStatus = null;
+      IPAddress ipAddress = null;
+      Port port = null;
+      Time time = null;
+      UserType userType = null;
+      Username username = null;
+      // Now we've initialised features to null, we got through each column and utilise switch statement between column index to create the right feature e.g. "Date" "Time" "UserType"
+      for(Cell cell : row){
+          String header = row.getSheet().getRow(0).getCell(cell.getColumnIndex()).getStringCellValue(); //returns the string of the column it is on
+          if(ignoredColumns.contains(header)){
+              continue; //continue means skip
+          }
+          switch(header){ //switches through each header of a column and then creates an object for each feature
+              case "DATE"-> date = new Date(cell.getStringCellValue());
+              case "TIME" -> time = new Time(cell.getStringCellValue());
+              case "ACCEPTED-FAILED" -> accessStatus = new AcceptedFailed("ACCEPTED".equalsIgnoreCase(cell.getStringCellValue()));
+              case "USER-TYPE" -> userType = new UserType("valid_user".equalsIgnoreCase(cell.getStringCellValue()));
+              case "USERNAME" -> username = new Username(cell.getStringCellValue());
+              case "IP-ADDRESS" -> ipAddress = new IPAddress(cell.getStringCellValue());
+              case "PORT" -> port = new Port(cell.getNumericCellValue());
+              default -> System.out.println("Unknown Column" + header);
+          }
+      }
+      if(username!=null) {
+          return new Request(ipAddress, date, time, username, userType, accessStatus, port);
+      }
+  }catch(Exception e){
+      System.out.println("Error parsing row" + e.getMessage());
+  }
+    return null;
+}
+
+public void loadAllRequests1(){
     List<Request> requestList = new ArrayList<>();
     Date date = null;
     AcceptedFailed acceptedFailed = null;
@@ -125,9 +184,7 @@ public void loadAllRequests(){
                      ipAddress = new IPAddress(cellValue);
                 }
 
-                List<String> ignoreColumn = ignoreColumnHeader();
-
-                if(!(cellValue.startsWith("ssh2")) && !ignoreColumn.contains(cellValue) && !(dotCount>2)){  /*  */
+                if(!(cellValue.startsWith("ssh2")) && !ignoredColumns.contains(cellValue) && !(dotCount>2)){  /*  */
                     username = new Username(cellValue);
                 }
 
@@ -152,13 +209,13 @@ public void loadAllRequests(){
 /* Feature Build method enters the sshdMap and constructs objects based on its featureType for all features. */
 public List<Feature<?>> featureBuild() {
     featureList = new ArrayList<>(); // Instantiate the featureList
-    af = new Feature<AcceptedFailed>();
-    date = new Feature<Date>();
-    ipAddress = new Feature<IPAddress>();
-    port = new Feature<Port>();
-    time = new Feature<Time>();
-    username = new Feature<Username>();
-    userType = new Feature<UserType>();
+    featureAf = new Feature<AcceptedFailed>();
+    featureDate = new Feature<Date>();
+    featureipAddress = new Feature<IPAddress>();
+    featurePort = new Feature<Port>();
+    featureTime = new Feature<Time>();
+    featureUsername = new Feature<Username>();
+    featureUserType = new Feature<UserType>();
 
 
     for (String featureName : sshdMap.keySet()) { // Loop through the sshdMap keyset
@@ -167,63 +224,63 @@ public List<Feature<?>> featureBuild() {
                 case "ACCEPTED-FAILED":
                     if (cell.getCellType() == CellType.STRING) {
                         AcceptedFailed afd = new AcceptedFailed(true);
-                        af.setColumnHeader(afd.getRowHeader());
-                        af.addFeature(afd);
-                        featureList.add(af);
+                        featureAf.setColumnHeader(afd.getRowHeader());
+                        featureAf.addFeature(afd);
+                        featureList.add(featureAf);
                     }
                     break;
 
                 case "DATE":
                     if (cell.getCellType() == CellType.STRING) {
                         Date d = new Date(cell.getStringCellValue());
-                        date.addFeature(d);
-                        date.setColumnHeader(d.getRowHeader());
-                        featureList.add(date);
+                        featureDate.addFeature(d);
+                        featureDate.setColumnHeader(d.getRowHeader());
+                        featureList.add(featureDate);
                     }
                     break;
 
                 case "IP-ADDRESS":
                     if (cell.getCellType() == CellType.STRING) { //check celltype to avoid exception thrown
                         IPAddress ip = new IPAddress(cell.getStringCellValue());
-                        ipAddress.addFeature(ip);
-                        ipAddress.setColumnHeader(ip.getRowHeader());
-                        featureList.add(ipAddress);
+                        featureipAddress.addFeature(ip);
+                        featureipAddress.setColumnHeader(ip.getRowHeader());
+                        featureList.add(featureipAddress);
                     }
                     break;
 
                 case "PORT":
                     if (cell.getCellType() == CellType.NUMERIC) { //check celltype to avoid exception thrown
                         Port p = new Port(cell.getNumericCellValue());
-                        port.setColumnHeader(p.getRowHeader());
-                        port.addFeature(p);
-                        featureList.add(port);
+                        featurePort.setColumnHeader(p.getRowHeader());
+                        featurePort.addFeature(p);
+                        featureList.add(featurePort);
                     }
                     break;
 
                 case "TIME":
                     if (cell.getCellType() == CellType.STRING) {
                         Time t = new Time(cell.getStringCellValue());
-                        time.setColumnHeader(t.getRowHeader());
-                        time.addFeature(t);
-                        featureList.add(time);
+                        featureTime.setColumnHeader(t.getRowHeader());
+                        featureTime.addFeature(t);
+                        featureList.add(featureTime);
                     }
                     break;
 
                 case "USERNAME":
                     if (cell.getCellType() == CellType.STRING) {
                         Username u = new Username(cell.getStringCellValue());
-                        username.setColumnHeader(u.getRowHeader());
-                        username.addFeature(u);
-                        featureList.add(username);
+                        featureUsername.setColumnHeader(u.getRowHeader());
+                        featureUsername.addFeature(u);
+                        featureList.add(featureUsername);
                     }
                     break;
 
                 case "USER-TYPE":
                     if (cell.getCellType() == CellType.STRING) {
                         UserType ut = new UserType("valid_user".equals(cell.getStringCellValue()));
-                        userType.setColumnHeader(ut.getRowHeader());
-                        userType.addFeature(ut);
-                        featureList.add(userType);
+                        featureUserType.setColumnHeader(ut.getRowHeader());
+                        featureUserType.addFeature(ut);
+                        featureList.add(featureUserType);
                     }
                     break;
             }
@@ -246,20 +303,13 @@ public List<Feature<?>> featureBuild() {
         return Collections.unmodifiableMap(sshdMap);
     }
 
-    public List<String> ignoreColumnHeader(){
-         List<String> ignoreColumnHeader = new ArrayList<>();
-         ignoreColumnHeader.add("app-1");
-         ignoreColumnHeader.add("password");
-         ignoreColumnHeader.add("for");
-         ignoreColumnHeader.add("from");
-         ignoreColumnHeader.add("port");
-         return ignoreColumnHeader;
-    }
-
-
 
     public boolean succesfullyLoaded(){
         return succesfullyLoaded;
+    }
+
+    public Map<Username, List<Request>> getRequestMap(){
+      return Collections.unmodifiableMap(requestMap);
     }
 
 }

@@ -161,6 +161,16 @@ public class IntrusionDetector extends JFrame {
         id.loadPassword();
         id.NetworkDataLoader();
         id.constructFeatureMap();
-         id.UserInterface();
+        id.UserInterface();
     }
 }
+
+
+/*
+* Once requestMap is properly built where usernames point to a list of all the requests theyve made then we can continue to
+* "AI" methods. this will be an attempt at creating nodes of "requests" that contain the features like IPADDRESS USERTYPE ETC.
+*  These methods will have mathematical operations to decide whether a request is anomalous or not anomalous based on predetermined values
+* The aim from there is to create new unseen data of requests where a classification task decides whether it is anomalous or not.
+*
+*
+* */
