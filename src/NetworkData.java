@@ -21,26 +21,9 @@ public class NetworkData {
     private final String filename;
     private int count;
     public boolean succesfullyLoaded = false;
-    private String[] featureNames = {"DATE", "TIME", "ACCEPTED-FAILED", "USER-TYPE","USERNAME","IP-ADDRESS","PORT"};
-    private List<Feature<?>> featureList;
-
     private Map<String, List<Cell>> sshdMap = new HashMap<>();
     private Map<Username, List<Request>> requestMap = new HashMap<>();
-    private final Set<String> ignoredColumns = Set.of("app-1","password","for","from","port");
-
-
-    //Feature Instantiations
-
-
-
-    private Feature<AcceptedFailed> featureAf;
-    private Feature<Date> featureDate;
-    private Feature<IPAddress> featureipAddress;
-    private Feature<UserType> featureUserType;
-    private Feature<Username> featureUsername;
-    private Feature<Port> featurePort;
-    private Feature<Time> featureTime;
-
+    private final Set<String> ignoredColumns = Set.of("app-1","password","for","from","port","IGNORE");
 
 
 
@@ -115,7 +98,13 @@ private Request parseRow(Row row){
               case "TIME" -> time = new Time(cell.getStringCellValue());
               case "ACCEPTED-FAILED" -> accessStatus = new AcceptedFailed("ACCEPTED".equalsIgnoreCase(cell.getStringCellValue()));
               case "USER-TYPE" -> userType = new UserType("valid_user".equalsIgnoreCase(cell.getStringCellValue()));
-              case "USERNAME" -> username = new Username(cell.getStringCellValue());
+              case "USERNAME" -> {
+                  if(CellType.STRING.equals(cell.getCellType())){
+                      username = new Username(cell.getStringCellValue());
+                  }else if(CellType.NUMERIC.equals(cell.getCellType())){
+                      username = new Username(String.valueOf((long)(cell.getNumericCellValue())));
+                  }
+              }
               case "IP-ADDRESS" -> ipAddress = new IPAddress(cell.getStringCellValue());
               case "PORT" -> port = new Port(cell.getNumericCellValue());
               default -> System.out.println("Unknown Column" + header);
@@ -125,6 +114,9 @@ private Request parseRow(Row row){
           return new Request(ipAddress, date, time, username, userType, accessStatus, port);
       }
   }catch(Exception e){
+      e.printStackTrace();
+      StackTraceElement[] stackTrace = e.getStackTrace();
+      System.out.println("Error Occured on Line" + stackTrace[0].getLineNumber());
       System.out.println("Error parsing row" + e.getMessage());
   }
     return null;
@@ -205,91 +197,6 @@ public void loadAllRequests1(){
       e.printStackTrace();
   }
 }
-
-/* Feature Build method enters the sshdMap and constructs objects based on its featureType for all features. */
-public List<Feature<?>> featureBuild() {
-    featureList = new ArrayList<>(); // Instantiate the featureList
-    featureAf = new Feature<AcceptedFailed>();
-    featureDate = new Feature<Date>();
-    featureipAddress = new Feature<IPAddress>();
-    featurePort = new Feature<Port>();
-    featureTime = new Feature<Time>();
-    featureUsername = new Feature<Username>();
-    featureUserType = new Feature<UserType>();
-
-
-    for (String featureName : sshdMap.keySet()) { // Loop through the sshdMap keyset
-        for (Cell cell : sshdMap.get(featureName)) { // Loop through cells in each column
-            switch (featureName) {
-                case "ACCEPTED-FAILED":
-                    if (cell.getCellType() == CellType.STRING) {
-                        AcceptedFailed afd = new AcceptedFailed(true);
-                        featureAf.setColumnHeader(afd.getRowHeader());
-                        featureAf.addFeature(afd);
-                        featureList.add(featureAf);
-                    }
-                    break;
-
-                case "DATE":
-                    if (cell.getCellType() == CellType.STRING) {
-                        Date d = new Date(cell.getStringCellValue());
-                        featureDate.addFeature(d);
-                        featureDate.setColumnHeader(d.getRowHeader());
-                        featureList.add(featureDate);
-                    }
-                    break;
-
-                case "IP-ADDRESS":
-                    if (cell.getCellType() == CellType.STRING) { //check celltype to avoid exception thrown
-                        IPAddress ip = new IPAddress(cell.getStringCellValue());
-                        featureipAddress.addFeature(ip);
-                        featureipAddress.setColumnHeader(ip.getRowHeader());
-                        featureList.add(featureipAddress);
-                    }
-                    break;
-
-                case "PORT":
-                    if (cell.getCellType() == CellType.NUMERIC) { //check celltype to avoid exception thrown
-                        Port p = new Port(cell.getNumericCellValue());
-                        featurePort.setColumnHeader(p.getRowHeader());
-                        featurePort.addFeature(p);
-                        featureList.add(featurePort);
-                    }
-                    break;
-
-                case "TIME":
-                    if (cell.getCellType() == CellType.STRING) {
-                        Time t = new Time(cell.getStringCellValue());
-                        featureTime.setColumnHeader(t.getRowHeader());
-                        featureTime.addFeature(t);
-                        featureList.add(featureTime);
-                    }
-                    break;
-
-                case "USERNAME":
-                    if (cell.getCellType() == CellType.STRING) {
-                        Username u = new Username(cell.getStringCellValue());
-                        featureUsername.setColumnHeader(u.getRowHeader());
-                        featureUsername.addFeature(u);
-                        featureList.add(featureUsername);
-                    }
-                    break;
-
-                case "USER-TYPE":
-                    if (cell.getCellType() == CellType.STRING) {
-                        UserType ut = new UserType("valid_user".equals(cell.getStringCellValue()));
-                        featureUserType.setColumnHeader(ut.getRowHeader());
-                        featureUserType.addFeature(ut);
-                        featureList.add(featureUserType);
-                    }
-                    break;
-            }
-        }
-    }
-
-    return featureList;
-}
-
 
     public String getFileName(){
         return filename;

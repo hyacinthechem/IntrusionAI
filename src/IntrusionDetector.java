@@ -1,19 +1,25 @@
 
 package src;
 
+import java.awt.*;
 import java.lang.annotation.ElementType;
 import java.util.*;
 import java.io.*;
+import java.util.List;
+
 import ecs100.*;
 import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 
 public class IntrusionDetector extends JFrame {
 
+    private File networkFile;
     private boolean administrator;
     private boolean portRisk = false;
     private double infectedPorts;
@@ -23,9 +29,8 @@ public class IntrusionDetector extends JFrame {
     public static final int MAXIMUM_FAILURES = 20;
 
     private  Map<String,List<Cell>> networkMap;
-    private  List<Feature<?>> allFeatures;
     private  List<Double> portNumbers;
-    private Map<String, Feature<?>> featureMap = new HashMap<>();
+    private  Map<Username, List<Request>> requestMap;
 
 
 
@@ -35,6 +40,44 @@ public class IntrusionDetector extends JFrame {
         UI.addButton("BlackList Port", this::blackListPort);
         UI.addButton("Print Log File", this::printMap);
         UI.addButton("Debug", this::debugger);
+
+    }
+
+    public IntrusionDetector(){
+        setTitle("IntrusionAI");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new FlowLayout());
+
+        JTextField administratorPassword = new JTextField("Admin Password");
+        add(administratorPassword);
+        JLabel infectedPortsLabel = new JLabel("Infected Ports");
+        add(infectedPortsLabel);
+
+
+        JButton detections = new JButton("Detections");
+        add(detections);
+
+        JButton openButton = new JButton("Open File");
+        openButton.setBounds(0,0,50,30);
+        add(openButton);
+        openButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e){
+                //new Object for the file management
+                JFileChooser fileChooser = new JFileChooser(); //empty constructor call
+                fileChooser.setDialogTitle("Choose Network Log File");
+                int result = fileChooser.showOpenDialog(null);
+                if(result == JFileChooser.APPROVE_OPTION){ //this is the value of
+                    File selectedFile = fileChooser.getSelectedFile();
+                    filePath = selectedFile.getAbsolutePath();
+                    networkFile = selectedFile;
+                    JOptionPane.showMessageDialog(null, "Selected Network Log File: " + selectedFile.getAbsolutePath());
+                    detections();
+                }
+            }
+        });
+
+
 
     }
 
@@ -68,51 +111,47 @@ public class IntrusionDetector extends JFrame {
     public void detections(){
         if(administrator){
             acceptedFailed();
-            portScanner();
-
+            portScanner(); //>: 57897 33041 39387
         }else{
             UI.println("Please Sign in as Administrator");
         }
     }
 
     public void portScanner(){
-        for(String feature : featureMap.keySet()){
-            if(feature.equals("PORT")){
-                Feature<?> featureObj = featureMap.get(feature);
-                List<?> featureList = featureObj.getFeaturesList();
-                for(Object o : featureList){
-                    if(o instanceof Port){
-                        Port port = (Port)o;
-                        if(portNumbers.contains(port.getPortNumber())){
-                            infectedPorts++;
-                        }
-                    }
-                }
+        List<Request> allRequests = new ArrayList<>();
+        for(List<Request> req : requestMap.values()){
+            allRequests.addAll(req);
+        }
+
+        for(Request req : allRequests){
+            Port port = req.getPort();
+            if(portNumbers.contains(port.getPortNumber())){
+                infectedPorts++;
             }
         }
         UI.println("Detected: " + infectedPorts + " Infected Ports");
     }
 
+
     public void acceptedFailed(){
         int count = 0;
-        List<Cell> cells = new ArrayList<>();
-        for(String featureName : networkMap.keySet()){
-            if(featureName.equals("ACCEPTED-FAILED")){
-              cells = networkMap.get(featureName);
-            }
+        List<Request> allRequests = new ArrayList<>();
+        for(List<Request> req : requestMap.values()){
+            allRequests.addAll(req);
         }
 
-        for(Cell cell : cells){
-            if(cell.getStringCellValue().equals("Failed")){
+        for(Request req : allRequests){
+            if(req.getAcceptedFailed().isFailed()){
                 count++;
             }
         }
 
-        if(count>MAXIMUM_FAILURES){
+        if(count > MAXIMUM_FAILURES) {
             UI.println("Count: " + count + "  System shut down");
         }
-
     }
+
+
 
     public void printMap(){
         for(Map.Entry<String,List<Cell>> entry : networkMap.entrySet()){
@@ -136,9 +175,9 @@ public class IntrusionDetector extends JFrame {
     public void NetworkDataLoader(){
         main = new NetworkData(filePath); //initialise the NetworkData object
         main.loaders(); //load the xlsx file data and put into networkMap
-        allFeatures = main.featureBuild(); //extract featureObjects from built networkMap
         main.loadAllRequests();
         networkMap = main.getLogFileMap(); //Get copy of networkMap for IntrusionDetector class
+        requestMap = main.getRequestMap();
     }
 
     /* Feature Map must have rowHeaders "PORT", "DATE" "TIME" ETC as the Key,
@@ -147,20 +186,19 @@ public class IntrusionDetector extends JFrame {
     So then you have size 14 and then the list of all the columns for that feature
      */
 
-    public void constructFeatureMap(){
-
-        for(Feature<?> feature : allFeatures){
-            featureMap.put(feature.toString(), feature);
-        }
-
-    }
 
 
     public static void main(String[] args){
+       /*
+        SwingUtilities.invokeLater(() -> {
+            IntrusionDetector detector = new IntrusionDetector();
+            detector.setVisible(true);
+        });
+
+        */
         IntrusionDetector id = new IntrusionDetector();
         id.loadPassword();
         id.NetworkDataLoader();
-        id.constructFeatureMap();
         id.UserInterface();
     }
 }
