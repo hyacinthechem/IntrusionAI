@@ -3,7 +3,6 @@
 package src;
 
 
-import ecs100.*;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import java.util.*;
@@ -54,6 +53,4 @@ public class Feature<E> {
     public String toString(){
         return columnHeader;
     }
-
-
 }
