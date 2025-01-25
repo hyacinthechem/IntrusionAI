@@ -1,7 +1,7 @@
 package src.RequestFeatures;
 public class AcceptedFailed{
 
-    private boolean acceptedFailed;
+    public boolean acceptedFailed;
     public static final String rowHeader = "ACCEPTED-FAILED";
 
 
