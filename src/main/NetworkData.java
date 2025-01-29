@@ -4,7 +4,7 @@ import java.util.*;
 import java.io.*;
 import src.RequestFeatures.*;
 import src.RequestFeatures.Date;
-import src.main.Request;
+import src.trainer.Request;
 
 
 /*
@@ -13,7 +13,6 @@ import src.main.Request;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.xmlbeans.XmlAnySimpleType;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,8 +1,6 @@
-package src.main;
+package src.trainer;
 import src.RequestFeatures.*;
 import src.RequestFeatures.Date;
-
-import java.util.*;
 
 /*This class is utilised to create a request object which consists a Row of Data being the request made by a
 * computer from a specific address ( IP address ) with port, date, time, username, usertype etc.

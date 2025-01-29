@@ -2,30 +2,21 @@
 package src.main;
 
 import java.awt.*;
-import java.lang.annotation.ElementType;
 import java.util.*;
 import java.io.*;
 import java.util.List;
 
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import ecs100.*;
-import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.model.CityResponse;
-import com.maxmind.geoip2.record.Country;
-import com.maxmind.geoip2.record.City;
 import src.RequestFeatures.IPAddress;
 import src.RequestFeatures.Port;
 import src.RequestFeatures.UserType;
 import src.RequestFeatures.Username;
-import src.main.NetworkData;
-import src.trainer.LearningRate;
-import src.trainer.LossFunction;
-import src.trainer.NetworkProcessor;
-import src.trainer.NeuralNetwork;
+import src.trainer.*;
 
 
 import java.io.File;
@@ -50,7 +41,7 @@ public class IntrusionDetector extends JFrame {
     private String filePath = "data/sshd.xlsx";
     private NetworkData main;
 
-    private List<Request> allRequests;
+    public List<Request> allRequests;
     private Map<String, List<Cell>> networkMap;
     private List<Double> portNumbers;
     private Map<Username, List<Request>> requestMap;

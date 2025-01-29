@@ -2,29 +2,29 @@ package src.trainer;
 
 import src.RequestFeatures.*;
 import src.RequestFeatures.Date;
-import src.main.Request;
 
 import java.util.*;
+import src.trainer.Request;
 import java.text.SimpleDateFormat;
 
 
 /*THIS CLASS ATTEMPT TO TAKE IN ALL REQUESTS AS INPUTS IN A NEURAL NETWORK. THE REQUESTS EACH HAVE THEIR WEIGHT ABOUT
 * HOW ANOMALOUS THE REQUEST IS. IT USES A SIGMOID ACTIVATION FUNCTION BETWEEN ONE AND ZERO*/
 
-public class Node{
-    private Request request;
+public class Node<T>{
+    private T request;
     private double weight;
     private double output;
     private double[] features;
 
-    public Node(Request request){
+    public Node(T request){
         this.request = request;
         this.weight = Math.random(); //intialise weight to random double
         this.output = 0;
-        this.features = extractFeatures(request);
+        this.features = extractFeatures( (Request) request);
     }
 
-    public Request getRequest(){
+    public T getRequest(){
         return request;
     }
 
@@ -113,6 +113,10 @@ public class Node{
 
     public double convertAccessToNumeric(AcceptedFailed accessStatus){
         return accessStatus.acceptedFailed? 1 : 0;
+    }
+
+    public double getOutput(){
+        return output;
     }
 
 

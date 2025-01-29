@@ -1,7 +1,6 @@
 package src.trainer;
 
 import src.main.NetworkData;
-import src.main.Request;
 
 import java.util.ArrayList;
 import java.util.List;
